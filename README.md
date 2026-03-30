@@ -179,7 +179,7 @@ Agent uses feedback to improve next recommendations
 
 ### 7. Dependencies
 
-#### [NEW] [requirements.txt](file:///e:/COLLEGE/NIRMA/SEM%206/RL/innovative/requirements.txt)
+#### [NEW] [requirements.txt]
 
 ```
 flask
@@ -192,7 +192,7 @@ scikit-learn
 ## Project Structure
 
 ```
-innovative/
+Courses_Recommendation_System/
 ├── archive/
 │   └── coursera_course_dataset_v3.csv
 ├── models/                    # Saved trained models
@@ -209,38 +209,3 @@ innovative/
 ├── app.py                     # Flask backend
 └── requirements.txt
 ```
-
-## Verification Plan
-
-### Automated Tests
-
-1. **Data preprocessing validation**:
-   ```
-   python -c "from preprocess import load_and_preprocess; data = load_and_preprocess(); print(f'Loaded {len(data)} courses'); assert len(data) > 3000"
-   ```
-
-2. **RL environment test**:
-   ```
-   python -c "from rl_environment import CourseRecommendationEnv; env = CourseRecommendationEnv(); state = env.reset({'skills':['Python','Machine Learning'],'difficulty':'Beginner','duration':'1-3 Months'}); print('State shape:', state.shape); assert state is not None"
-   ```
-
-3. **DQN agent test**:
-   ```
-   python -c "from dqn_agent import DQNAgent; agent = DQNAgent(state_dim=60, action_dim=100); print('Agent created successfully')"
-   ```
-
-4. **Training smoke test** (runs 10 episodes):
-   ```
-   python train.py --episodes 10
-   ```
-
-### Manual Verification (Browser Testing)
-
-5. **Start the server**: `python app.py` → opens at `http://localhost:5000`
-6. **Test the full flow**:
-   - Select skills (e.g., Python, Machine Learning)
-   - Choose difficulty (Beginner) and duration (1-3 Months)
-   - Click "Get Recommendations" → verify 5 course cards appear
-   - Click "Like" on a relevant course → verify next recommendations are more relevant
-   - Click "Skip" on irrelevant courses → verify agent adapts
-7. **Verify adaptiveness**: After 3-4 rounds of feedback, recommendations should increasingly match preferences
