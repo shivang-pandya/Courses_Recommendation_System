@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseAI — RL-Powered Course Recommendations</title>
+    <meta name="description" content="Get personalized Coursera course recommendations powered by Deep Q-Network Reinforcement Learning.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- ── Background particles ───────────────────────────────────────── -->
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-icon">🧠</span>
+                <span class="logo-text">Course<span class="accent">AI</span></span>
+            </div>
+            <div class="header-badge">
+                <span class="badge-dot"></span>
+                Powered by Deep Q-Network
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Main Container ─────────────────────────────────────────────── -->
+    <main class="container">
+
+        <!-- ── Step 1: Student Profile ────────────────────────────────── -->
+        <section id="profileSection" class="section active">
+            <div class="section-header">
+                <span class="step-badge">Step 1</span>
+                <h1>Tell us about your learning goals</h1>
+                <p class="subtitle">Select your interests and preferences. Our RL agent will learn from your feedback to recommend the best courses.</p>
+            </div>
+
+            <div class="card glass">
+                <h2>🎯 Skills You Want to Learn</h2>
+                <p class="card-hint">Select at least 2 skills</p>
+                <div id="skillGrid" class="skill-grid">
+                    <!-- populated by JS -->
+                    <div class="loading-spinner">Loading skills...</div>
+                </div>
+            </div>
+
+            <div class="preferences-row">
+                <div class="card glass pref-card">
+                    <h3>📊 Difficulty Level</h3>
+                    <div class="radio-group" id="difficultyGroup">
+                        <label class="radio-pill selected" data-value="Beginner">
+                            <span class="pill-dot"></span> Beginner
+                        </label>
+                        <label class="radio-pill" data-value="Intermediate">
+                            <span class="pill-dot"></span> Intermediate
+                        </label>
+                        <label class="radio-pill" data-value="Advanced">
+                            <span class="pill-dot"></span> Advanced
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card glass pref-card">
+                    <h3>⏱️ Preferred Duration</h3>
+                    <div class="radio-group" id="durationGroup">
+                        <label class="radio-pill" data-value="1-4 Weeks">
+                            <span class="pill-dot"></span> 1-4 Weeks
+                        </label>
+                        <label class="radio-pill selected" data-value="1-3 Months">
+                            <span class="pill-dot"></span> 1-3 Months
+                        </label>
+                        <label class="radio-pill" data-value="3-6 Months">
+                            <span class="pill-dot"></span> 3-6 Months
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button id="getRecommendations" class="btn btn-primary" disabled>
+                <span class="btn-icon">🚀</span>
+                Get AI Recommendations
+            </button>
+        </section>
+
+        <!-- ── Step 2: Recommendations ────────────────────────────────── -->
+        <section id="recommendSection" class="section">
+            <div class="section-header">
+                <span class="step-badge">Step 2</span>
+                <h1>Recommendations for You</h1>
+                <p class="subtitle">Like or skip courses to help the RL agent learn your preferences in real-time.</p>
+            </div>
+
+            <!-- Agent Stats Bar -->
+            <div class="agent-bar glass" id="agentBar">
+                <div class="stat">
+                    <span class="stat-label">Round</span>
+                    <span class="stat-value" id="roundCount">1</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Liked</span>
+                    <span class="stat-value liked" id="likedCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Skipped</span>
+                    <span class="stat-value skipped" id="skippedCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">ε (Exploration)</span>
+                    <span class="stat-value" id="epsilonValue">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Agent Steps</span>
+                    <span class="stat-value" id="trainSteps">-</span>
+                </div>
+            </div>
+
+            <!-- Course Cards -->
+            <div id="courseCards" class="course-grid">
+                <!-- populated by JS -->
+            </div>
+
+            <!-- Liked courses section -->
+            <div id="likedSection" class="liked-section" style="display:none;">
+                <h2>💚 Your Liked Courses</h2>
+                <div id="likedCourses" class="liked-grid"></div>
+            </div>
+
+            <div class="actions-row">
+                <button id="newSearch" class="btn btn-secondary">
+                    ← New Search
+                </button>
+            </div>
+        </section>
+
+        <!-- ── Loading Overlay ────────────────────────────────────────── -->
+        <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+            <div class="loading-content glass">
+                <div class="spinner"></div>
+                <p id="loadingText">Analyzing your preferences...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── Footer ─────────────────────────────────────────────────────── -->
+    <footer class="footer">
+        <p>Built with <span class="accent">PyTorch DQN</span> · Reinforcement Learning · Flask</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
