@@ -55,6 +55,12 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/health", methods=["GET"])
+def health():
+    """Return a lightweight readiness response for container checks."""
+    return jsonify({"status": "ok"})
+
+
 @app.route("/api/skills", methods=["GET"])
 def get_skills():
     """Return the list of top skills available for selection."""
@@ -67,7 +73,7 @@ def recommend():
     Accept student preferences and return initial course recommendations.
     Body: { "skills": [...], "difficulty": "Beginner", "duration": "1-3 Months" }
     """
-    data = request.get_json()
+    data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "No JSON body provided"}), 400
 
@@ -100,7 +106,7 @@ def feedback():
     Accept feedback on a recommended course and return updated recommendations.
     Body: { "session_id": "...", "course_index": 42, "feedback": "like"|"skip" }
     """
-    data = request.get_json()
+    data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "No JSON body provided"}), 400
 
@@ -157,6 +163,7 @@ def stats():
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
+init_app()
+
 if __name__ == "__main__":
-    init_app()
     app.run(debug=False, host="0.0.0.0", port=5000)

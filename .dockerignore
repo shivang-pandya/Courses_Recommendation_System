@@ -1,0 +1,11 @@
+.git
+.gitignore
+.venv*
+__pycache__
+*.pyc
+tests
+archive
+data/*.csv
+*.log
+Jenkinsfile
+README.md

@@ -36,6 +36,48 @@ graph TD
     C -->|train| G[PyTorch DQN Network]
 ```
 
+## Continuous Integration
+
+The repository includes a [`Jenkinsfile`](Jenkinsfile) for CI only. On each
+build, Jenkins:
+
+1. Checks out the repository.
+2. Creates an isolated Python virtual environment.
+3. Installs the dependencies from `requirements.txt`.
+4. Compiles the Python sources.
+5. Runs the Flask smoke tests in `tests/`.
+
+The pipeline does not train the model or deploy the application. Training is
+intentionally kept out of normal CI because it is computationally expensive
+and can overwrite the versioned model artifact. Deployment can be added later
+as a separate, manually approved stage after the CI checks are passing.
+
+The pipeline also builds a Docker image and starts it temporarily to verify the
+`/health` endpoint. The image packages the Flask inference API, its approved
+DQN model, and the processed course data. It uses Gunicorn rather than Flask's
+development server. The container is removed after the Jenkins build.
+
+To run the same checks locally:
+
+```bash
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+## Deployment path
+
+Once CI is stable, publish the image produced by Jenkins to a container
+registry, such as Docker Hub, GitHub Container Registry, or Azure Container
+Registry. A later deployment stage can then pull that immutable image into
+Azure Container Apps, Azure App Service, or another container host:
+
+```text
+Jenkins -> Container Registry -> Container host -> Flask API
+```
+
+For production, keep model training as a separate scheduled or manually
+approved job. Only a model that passes evaluation should be copied into a new
+image and promoted.
+
 ## Dataset Analysis
 
 The [coursera_course_dataset_v3.csv](file:///e:/COLLEGE/NIRMA/SEM%206/RL/innovative/archive/coursera_course_dataset_v3.csv) has **~3835 courses** with:
