@@ -22,59 +22,61 @@ pipeline {
 
         stage('Create virtual environment') {
             steps {
-                sh 'python3 -m venv "$VENV_DIR"'
+                bat 'python -m venv "%VENV_DIR%"'
             }
         }
 
         stage('Install dependencies') {
             steps {
-                sh '''
-                    . "$VENV_DIR/bin/activate"
-                    python -m pip install --upgrade pip
-                    python -m pip install -r requirements.txt
+                bat '''
+                    "%VENV_DIR%\\Scripts\\python.exe" -m pip install --upgrade pip
+                    "%VENV_DIR%\\Scripts\\python.exe" -m pip install -r requirements.txt
                 '''
             }
         }
 
         stage('Compile Python sources') {
             steps {
-                sh '''
-                    . "$VENV_DIR/bin/activate"
-                    python -m compileall -q app.py preprocess.py rl_environment.py dqn_agent.py train.py tests
+                bat '''
+                    "%VENV_DIR%\\Scripts\\python.exe" -m compileall -q app.py preprocess.py rl_environment.py dqn_agent.py train.py tests
                 '''
             }
         }
 
         stage('Run tests') {
             steps {
-                sh '''
-                    . "$VENV_DIR/bin/activate"
-                    python -m unittest discover -s tests -p "test_*.py" -v
+                bat '''
+                    "%VENV_DIR%\\Scripts\\python.exe" -m unittest discover -s tests -p "test_*.py" -v
                 '''
             }
         }
 
         stage('Build Docker image') {
             steps {
-                sh 'docker build --tag "$IMAGE_NAME:$BUILD_NUMBER" .'
+                bat 'docker build --tag "%IMAGE_NAME%:%BUILD_NUMBER%" .'
             }
         }
 
         stage('Container smoke test') {
             steps {
-                sh '''
-                    docker run --detach --name "$CONTAINER_NAME" --publish 5000:5000 "$IMAGE_NAME:$BUILD_NUMBER"
-                    trap 'docker logs "$CONTAINER_NAME" || true; docker rm --force "$CONTAINER_NAME" || true' EXIT
-
-                    for attempt in $(seq 1 30); do
-                        if python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=2)" 2>/dev/null; then
-                            exit 0
-                        fi
-                        sleep 2
-                    done
-
-                    echo 'Container health check failed'
-                    exit 1
+                powershell '''
+                    docker run --detach --name "$env:CONTAINER_NAME" --publish 5000:5000 "$env:IMAGE_NAME`:$env:BUILD_NUMBER"
+                    try {
+                        for ($attempt = 1; $attempt -le 30; $attempt++) {
+                            try {
+                                $response = Invoke-WebRequest -Uri "http://127.0.0.1:5000/health" -UseBasicParsing -TimeoutSec 2
+                                if ($response.StatusCode -eq 200) {
+                                    exit 0
+                                }
+                            } catch {
+                                Start-Sleep -Seconds 2
+                            }
+                        }
+                        throw "Container health check failed"
+                    } finally {
+                        docker logs $env:CONTAINER_NAME
+                        docker rm --force $env:CONTAINER_NAME
+                    }
                 '''
             }
         }
@@ -83,10 +85,12 @@ pipeline {
     post {
         always {
             junit allowEmptyResults: true, testResults: 'test-results/*.xml'
-            sh '''
-                docker rm --force "$CONTAINER_NAME" 2>/dev/null || true
-                docker image rm "$IMAGE_NAME:$BUILD_NUMBER" 2>/dev/null || true
-                rm -rf "$VENV_DIR"
+            powershell '''
+                docker rm --force "$env:CONTAINER_NAME" 2>$null
+                docker image rm "$env:IMAGE_NAME`:$env:BUILD_NUMBER" 2>$null
+                if (Test-Path $env:VENV_DIR) {
+                    Remove-Item -Recurse -Force $env:VENV_DIR
+                }
             '''
         }
         success {

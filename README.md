@@ -54,7 +54,7 @@ as a separate, manually approved stage after the CI checks are passing.
 
 The pipeline also builds a Docker image and starts it temporarily to verify the
 `/health` endpoint. The image packages the Flask inference API, its approved
-DQN model, and the processed course data. It uses Gunicorn rather than Flask's
+DQN model, and the processed course data. It uses Waitress rather than Flask's
 development server. The container is removed after the Jenkins build.
 
 To run the same checks locally:
