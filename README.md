@@ -44,7 +44,7 @@ build, Jenkins:
 1. Checks out the repository.
 2. Creates an isolated Python virtual environment.
 3. Installs the dependencies from `requirements.txt`.
-4. Compiles the Python sources.
+4. Compiles only the inference API and test sources.
 5. Runs the Flask smoke tests in `tests/`.
 
 The pipeline does not train the model or deploy the application. Training is
@@ -56,6 +56,14 @@ The pipeline also builds a Docker image and starts it temporarily to verify the
 `/health` endpoint. The image packages the Flask inference API, its approved
 DQN model, and the processed course data. It uses Waitress rather than Flask's
 development server. The container is removed after the Jenkins build.
+
+Jenkins does not run `train.py` during CI, install a separate training stack, or
+copy the raw CSV archive into the Docker image. The packages in
+`requirements.txt` are all required by the inference path: PyTorch loads the
+DQN model, pandas and scikit-learn load the processed features, NumPy is used
+by the environment, Flask serves the API, and Waitress serves the container.
+Pip caching is disabled in Jenkins to avoid retaining unnecessary package
+artifacts on the agent.
 
 To run the same checks locally:
 

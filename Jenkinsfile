@@ -29,8 +29,8 @@ pipeline {
         stage('Install dependencies') {
             steps {
                 bat '''
-                    "%VENV_DIR%\\Scripts\\python.exe" -m pip install --upgrade pip
-                    "%VENV_DIR%\\Scripts\\python.exe" -m pip install -r requirements.txt
+                    "%VENV_DIR%\\Scripts\\python.exe" -m pip install --upgrade --no-cache-dir pip
+                    "%VENV_DIR%\\Scripts\\python.exe" -m pip install --no-cache-dir -r requirements.txt
                 '''
             }
         }
@@ -38,7 +38,7 @@ pipeline {
         stage('Compile Python sources') {
             steps {
                 bat '''
-                    "%VENV_DIR%\\Scripts\\python.exe" -m compileall -q app.py preprocess.py rl_environment.py dqn_agent.py train.py tests
+                    "%VENV_DIR%\\Scripts\\python.exe" -m compileall -q app.py preprocess.py rl_environment.py dqn_agent.py tests
                 '''
             }
         }
