@@ -1,5 +1,7 @@
 flask
-torch
+# The Jenkins/Docker inference image has no CUDA runtime or GPU.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1+cpu
 numpy
 pandas
 scikit-learn

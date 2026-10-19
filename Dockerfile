@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip \
-    && python -m pip install -r requirements.txt
+    && python -m pip install --no-cache-dir -r requirements.txt
 
 COPY app.py preprocess.py rl_environment.py dqn_agent.py ./
 COPY templates ./templates

@@ -1,0 +1,2 @@
+# CI validates source structure and syntax; it does not import the ML runtime.
+# Keep PyTorch and other runtime-heavy packages out of Jenkins.

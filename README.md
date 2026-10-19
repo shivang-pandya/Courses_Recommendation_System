@@ -43,27 +43,28 @@ build, Jenkins:
 
 1. Checks out the repository.
 2. Creates an isolated Python virtual environment.
-3. Installs the dependencies from `requirements.txt`.
+3. Installs the lightweight dependencies from `requirements-ci.txt`.
 4. Compiles only the inference API and test sources.
-5. Runs the Flask smoke tests in `tests/`.
+5. Runs source validation tests in `tests/test_ci_source.py`.
 
 The pipeline does not train the model or deploy the application. Training is
 intentionally kept out of normal CI because it is computationally expensive
 and can overwrite the versioned model artifact. Deployment can be added later
 as a separate, manually approved stage after the CI checks are passing.
 
-The pipeline also builds a Docker image and starts it temporarily to verify the
-`/health` endpoint. The image packages the Flask inference API, its approved
-DQN model, and the processed course data. It uses Waitress rather than Flask's
-development server. The container is removed after the Jenkins build.
+Jenkins does not install PyTorch, build a Docker image, or start the inference
+container. This keeps normal CI small enough for the available disk space.
+Docker image building is a separate release action because the runtime image
+must contain PyTorch to load the DQN model.
 
-Jenkins does not run `train.py` during CI, install a separate training stack, or
-copy the raw CSV archive into the Docker image. The packages in
-`requirements.txt` are all required by the inference path: PyTorch loads the
-DQN model, pandas and scikit-learn load the processed features, NumPy is used
-by the environment, Flask serves the API, and Waitress serves the container.
-Pip caching is disabled in Jenkins to avoid retaining unnecessary package
-artifacts on the agent.
+Jenkins does not run `train.py` during CI, install the runtime stack, or copy
+the raw CSV archive into a Docker image. The full runtime dependencies remain
+in `requirements.txt` for local execution and a later release build. Pip
+caching is disabled in Jenkins to avoid retaining package artifacts.
+
+PyTorch is pinned to its CPU-only wheel for the later inference image because
+that image does not have CUDA or an NVIDIA GPU. A GPU-enabled training
+environment should use a separate dependency file and image.
 
 To run the same checks locally:
 
